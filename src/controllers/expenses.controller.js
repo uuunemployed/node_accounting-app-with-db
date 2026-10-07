@@ -3,18 +3,23 @@ const userService = require('../services/users.service');
 
 const getExpenses = async (req, res) => {
   let expenses = await expenseService.getAllExpenses();
+
   const { userId, from, to, categories } = req.query;
 
   if (userId) {
-    expenses = await expenseService.getExpensesByUser(Number(userId));
+    expenses = expenses.filter((expense) => expense.userId === Number(userId));
   }
 
-  if (from || to) {
-    expenses = await expenseService.getExpensesBetweenDates(from, to);
+  if (from) {
+    expenses = expenses.filter((expense) => expense.spentAt >= from);
+  }
+
+  if (to) {
+    expenses = expenses.filter((expense) => expense.spentAt <= to);
   }
 
   if (categories) {
-    expenses = await expenseService.getExpenseByCategories(categories);
+    expenses = expenses.filter((expense) => expense.category === categories);
   }
 
   res
@@ -30,7 +35,8 @@ const createExpense = async (req, res) => {
     userId === null ||
     !title ||
     amount === undefined ||
-    amount === null
+    amount === null ||
+    !spentAt
   ) {
     return res.sendStatus(400);
   }
@@ -45,9 +51,9 @@ const createExpense = async (req, res) => {
     userId: Number(userId),
     title,
     amount: Number(amount),
-    category: category || null,
+    category: category || '',
     note: note || null,
-    spentAt: spentAt || new Date().toISOString(),
+    spentAt: spentAt,
   };
 
   res.status(201).json(await expenseService.createExpense(newExpense));

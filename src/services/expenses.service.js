@@ -1,5 +1,4 @@
 const { Expense } = require('../models/Expense.model');
-const { Op } = require('sequelize');
 
 function normalize({ id, userId, spentAt, title, amount, category, note }) {
   return {
@@ -17,38 +16,6 @@ async function getAllExpenses() {
   const result = await Expense.findAll();
 
   return result;
-}
-
-async function getExpensesByUser(userId) {
-  const expenses = await Expense.findAll({ where: { userId } });
-
-  return expenses;
-}
-
-async function getExpensesBetweenDates(from, to) {
-  const expenses = await Expense.findAll({
-    where: { spentAt: { [Op.between]: [from, to] } },
-  });
-
-  return expenses;
-}
-
-async function getExpenseByCategories(categories) {
-  let categoryList = categories;
-
-  if (typeof categories === 'string') {
-    categoryList = categories.includes(',')
-      ? categories.split(',')
-      : [categories];
-  } else if (!Array.isArray(categories)) {
-    categoryList = [categories];
-  }
-
-  const expenses = await Expense.findAll({
-    where: { category: { [Op.in]: categoryList } },
-  });
-
-  return expenses;
 }
 
 async function getExpenseById(id) {
@@ -80,9 +47,6 @@ async function updateExpense({ id, ...params }) {
 module.exports = {
   normalize,
   getAllExpenses,
-  getExpensesByUser,
-  getExpensesBetweenDates,
-  getExpenseByCategories,
   getExpenseById,
   createExpense,
   deleteExpense,
