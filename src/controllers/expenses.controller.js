@@ -19,7 +19,11 @@ const getExpenses = async (req, res) => {
   }
 
   if (categories) {
-    expenses = expenses.filter((expense) => expense.category === categories);
+    const categoryList = categories.split(',');
+
+    expenses = expenses.filter((expense) => {
+      return categoryList.includes(expense.category);
+    });
   }
 
   res
